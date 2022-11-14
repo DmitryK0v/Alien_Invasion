@@ -6,7 +6,7 @@ class Ship(object):
         """Initializes the ship and sets its initial position."""
         self.screen = screen
         # Loading a ship image and getting a rectangle.
-        self.image = pygame.image.load('data/images/ship.bmp')
+        self.image = pygame.image.load('data/images/Ship-2.png')
         self.rect = self.image.get_rect()
         self.screen_rect = screen.get_rect()
         self.ai_setting = ai_setting
