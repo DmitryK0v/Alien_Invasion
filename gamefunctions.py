@@ -11,9 +11,7 @@ def check_keydown_events(event, ai_settings, screen, starship, bullets):
     elif event.key == pygame.K_LEFT:
         starship.moving_left = True
     elif event.key == pygame.K_SPACE:
-        if len(bullets) < ai_settings.bullets_allowed:
-            new_bullet = Bullet(ai_settings, screen, starship)
-            bullets.add(new_bullet)
+        fire_bullet(ai_settings, screen, starship, bullets)
 
 
 def check_keyup_events(event, starship):
@@ -22,6 +20,13 @@ def check_keyup_events(event, starship):
         starship.moving_right = False
     elif event.key == pygame.K_LEFT:
         starship.moving_left = False
+
+
+def fire_bullet(ai_settings, screen, starship, bullets):
+    """Fires a bullet if the maximum has not yet been reached"""
+    if len(bullets) < ai_settings.bullets_allowed:
+        new_bullet = Bullet(ai_settings, screen, starship)
+        bullets.add(new_bullet)
 
 
 def check_events(ai_settings, screen, starship, bullets):
@@ -45,3 +50,10 @@ def update_screen(ai_settings, screen, starship, bullets):
     starship.blitme()
     # Display the last screen drawn.
     pygame.display.flip()
+
+
+def remove_bullets(bullets):
+    # Removal of bullets that have gone off the edge of the screen.
+    for bullet in bullets.copy():
+        if bullet.rect.bottom <= 0:
+            bullets.remove(bullet)
