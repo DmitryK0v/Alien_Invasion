@@ -2,7 +2,7 @@ import pygame.font
 
 
 class Button(object):
-    def __init__(self, ai_settings, screen, msg):
+    def __init__(self, ai_settings, screen):
         """Initializes button attributes"""
         self.msg_image_rect = None
         self.msg_image = None
@@ -19,17 +19,29 @@ class Button(object):
         self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.rect.center = self.screen_rect.center
 
-        # The button message is created only once.
-        self.prep_msg(msg)
-
-    def prep_msg(self, msg):
+    def prep_msg_play(self, msg):
         """Converts msg to a rectangle and aligns the text to the center."""
         self.msg_image = self.font.render(msg, True, self.text_color,
                                           self.button_color)
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.rect.center
 
-    def draw_button(self):
+    def prep_msg_pause(self, msg):
+        """Converts msg to a rectangle and aligns the text to the bottom."""
+        self.msg_image = self.font.render(msg, True, self.text_color,
+                                          self.button_color)
+        self.msg_image_rect = self.msg_image.get_rect()
+        self.msg_image_rect.center = self.rect.center
+
+    def draw_button_play(self, msg):
+        self.prep_msg_play(msg)
         # Displaying an empty button and displaying a message.
+        self.screen.fill(self.button_color, self.rect)
+        self.screen.blit(self.msg_image, self.msg_image_rect)
+
+    def draw_button_pause(self, msg):
+        self.prep_msg_pause(msg)
+        # Displaying an empty button and displaying a message.
+        self.rect = pygame.Rect(500, 500, self.width, self.height)
         self.screen.fill(self.button_color, self.rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
