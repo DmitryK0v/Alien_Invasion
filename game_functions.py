@@ -32,7 +32,7 @@ def check_keyup_events(event, ship):
         ship.moving_left = False
 
 
-def check_events(ai_settings, screen, stats, play_button, pause_button, ship, bullets, aliens):
+def check_events(ai_settings, screen, stats, scrboard, play_button, pause_button, ship, bullets, aliens):
     """Respond to keypresses and mouse events."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -43,22 +43,23 @@ def check_events(ai_settings, screen, stats, play_button, pause_button, ship, bu
             check_keyup_events(event, ship)
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_buttons(ai_settings, screen, stats, play_button, pause_button, ship, aliens,
+            check_buttons(ai_settings, screen, stats, scrboard, play_button, pause_button, ship, aliens,
                           bullets, mouse_x, mouse_y)
 
 
-def check_buttons(ai_settings, screen, stats, play_button, pause_button, ship, aliens,
+def check_buttons(ai_settings, screen, stats, scrboard, play_button, pause_button, ship, aliens,
                   bullets, mouse_x, mouse_y):
     """Starts a new game when the Play button is pressed."""
     button_play_clicked = play_button.rect.collidepoint(mouse_x, mouse_y)
     button_pause_clicked = pause_button.rect.collidepoint(mouse_x, mouse_y)
     if button_play_clicked and not stats.game_active:
+        # Reset game statistics
+        stats.reset_stats()
+        scrboard.prep_score()
         # The mouse pointer is hidden
         pygame.mouse.set_visible(False)
         # Reset game settings
         ai_settings.initialize_dynamic_settings()
-        # Reset game statistics
-        stats.reset_stats()
         stats.game_active = True
 
         # Clean up lists of aliens and bullets.
@@ -80,7 +81,7 @@ def fire_bullet(ai_settings, screen, ship, bullets):
         bullets.add(new_bullet)
 
 
-def update_screen(ai_settings, screen, ship, aliens, bullets, play_button, pause_button, stats):
+def update_screen(ai_settings, screen, ship, aliens, bullets, play_button, pause_button, stats, scrboard):
     """Update images on the screen, and flip to the new screen."""
 
     # Redraw the screen, each pass through the loop.
@@ -89,8 +90,10 @@ def update_screen(ai_settings, screen, ship, aliens, bullets, play_button, pause
     # Redraw all bullets, behind ship and aliens.
     for bullet in bullets.sprites():
         bullet.draw_bullet()
+
     ship.blitme()
     aliens.draw(screen)
+    scrboard.show_score()
 
     # The Play button is displayed if the game is inactive
     if not stats.game_active:
@@ -101,7 +104,7 @@ def update_screen(ai_settings, screen, ship, aliens, bullets, play_button, pause
     pygame.display.flip()
 
 
-def update_bullets(ai_settings, screen, ship, aliens, bullets):
+def update_bullets(ai_settings, screen, stats, scrboard, ship, aliens, bullets):
     """Update position of bullets, and get rid of old bullets."""
     # Update bullet positions.
     bullets.update()
@@ -111,13 +114,16 @@ def update_bullets(ai_settings, screen, ship, aliens, bullets):
         if bullet.rect.bottom <= 0:
             bullets.remove(bullet)
 
-    check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets)
+    check_bullet_alien_collisions(ai_settings, screen, stats, scrboard, ship, aliens, bullets)
 
 
-def check_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
+def check_bullet_alien_collisions(ai_settings, screen, stats, scrboard, ship, aliens, bullets):
     """Respond to bullet-alien collisions."""
     # Remove any bullets and aliens that have collided.
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
+    if collisions:
+        stats.score += ai_settings.alien_points
+        scrboard.prep_score()
 
     if len(aliens) == 0:
         # Destroy bullets, increase speed and create a new fleet.
@@ -146,7 +152,7 @@ def ship_hit(ai_settings, stats, screen, ship, aliens, bullets):
     if stats.ships_left > 0:
         # Decrement ships_left.
         stats.ships_left -= 1
-    else:
+    elif stats.ships_left == 0:
         stats.game_active = False
         pygame.mouse.set_visible(True)
 
