@@ -20,6 +20,7 @@ class Scoreboard(object):
         # Prepare invoice images.
         self.prep_score()
         self.prep_high_score()
+        self.prep_level()
 
     def read_high_score(self):
         file = open('data/record.json', 'r')
@@ -37,6 +38,16 @@ class Scoreboard(object):
         self.score_rect.right = self.screen_rect.right - 20
         self.score_rect.top = 20
 
+    def prep_level(self):
+        """Converts the level to a graphic."""
+
+        self.level_image = self.font.render(str(self.stats.level), True,
+                                            self.text_color, self.ai_settings.bg_color)
+        # The level is displayed under the current score.
+        self.level_rect = self.level_image.get_rect()
+        self.level_rect.right = self.screen_rect.right - 20
+        self.level_rect.top = 60
+
     def prep_high_score(self):
         """Converts the record score to a graphic."""
         self.high_score = int(round(self.high_score, -1))
@@ -53,6 +64,7 @@ class Scoreboard(object):
         file.close()
 
     def show_score(self):
-        """Выводит счет на экран."""
+        """Displays current score, record and number of remaining ships."""
         self.screen.blit(self.score_image, self.score_rect)
         self.screen.blit(self.high_score_image, self.high_score_rect)
+        self.screen.blit(self.level_image, self.level_rect)

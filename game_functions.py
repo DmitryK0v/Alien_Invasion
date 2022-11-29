@@ -62,6 +62,11 @@ def check_buttons(ai_settings, screen, stats, scrboard, play_button, pause_butto
         ai_settings.initialize_dynamic_settings()
         stats.game_active = True
 
+        # Reset images of scores and levels.
+        scrboard.prep_score()
+        scrboard.prep_high_score()
+        scrboard.prep_level()
+
         # Clean up lists of aliens and bullets.
         aliens.empty()
         bullets.empty()
@@ -137,9 +142,13 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, scrboard, ship, al
 
     if len(aliens) == 0:
         # Destroy bullets, increase speed and create a new fleet.
+        # If the entire fleet is destroyed, the next level starts.
         bullets.empty()
         ai_settings.increase_speed()
         create_fleet(ai_settings, screen, ship, aliens)
+        # Level increase.
+        stats.level += 1
+        scrboard.prep_level()
 
 
 def check_fleet_edges(ai_settings, aliens):
