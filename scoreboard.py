@@ -1,5 +1,7 @@
 import pygame.font
 import json
+from pygame.sprite import Group
+from ship import Ship
 
 
 class Scoreboard(object):
@@ -18,6 +20,7 @@ class Scoreboard(object):
         self.font = pygame.font.SysFont(None, 48)
 
         # Prepare invoice images.
+        self.prep_ships()
         self.prep_score()
         self.prep_high_score()
         self.prep_level()
@@ -26,6 +29,16 @@ class Scoreboard(object):
         file = open('data/record.json', 'r')
         self.high_score = int(json.load(file))
         file.close()
+
+    def prep_ships(self):
+        """Show how many ships are left."""
+        self.ships = Group()
+        for ship_number in range(self.stats.ships_left):
+            ship = Ship(self.ai_settings, self.screen)
+            ship.ship_ico()
+            ship.rect.x = 10 + ship_number * ship.rect.width
+            ship.rect.y = 10
+            self.ships.add(ship)
 
     def prep_score(self):
         """Converts the current score to a graphic."""
@@ -68,3 +81,5 @@ class Scoreboard(object):
         self.screen.blit(self.score_image, self.score_rect)
         self.screen.blit(self.high_score_image, self.high_score_rect)
         self.screen.blit(self.level_image, self.level_rect)
+        # Draw ships.
+        self.ships.draw(self.screen)
