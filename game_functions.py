@@ -73,6 +73,14 @@ def check_buttons(ai_settings, screen, stats, scrboard, play_button, pause_butto
         stats.game_active = True
 
 
+def check_high_score(stats, sb):
+    """Checks if there is a new record."""
+    if stats.score > sb.high_score:
+        stats.high_score = stats.score
+        sb.prep_high_score()
+        sb.dump_high_record()
+
+
 def fire_bullet(ai_settings, screen, ship, bullets):
     """Fire a bullet, if limit not reached yet."""
     # Create a new bullet, add to bullets group.
@@ -122,8 +130,10 @@ def check_bullet_alien_collisions(ai_settings, screen, stats, scrboard, ship, al
     # Remove any bullets and aliens that have collided.
     collisions = pygame.sprite.groupcollide(bullets, aliens, True, True)
     if collisions:
-        stats.score += ai_settings.alien_points
-        scrboard.prep_score()
+        for aliens in collisions.values():
+            stats.score += ai_settings.alien_points * len(aliens)
+    scrboard.prep_score()
+    check_high_score(stats, scrboard)
 
     if len(aliens) == 0:
         # Destroy bullets, increase speed and create a new fleet.

@@ -1,4 +1,5 @@
 import pygame.font
+import json
 
 
 class Scoreboard(object):
@@ -9,24 +10,49 @@ class Scoreboard(object):
         self.screen_rect = screen.get_rect()
         self.ai_settings = ai_settings
         self.stats = stats
+        self.high_score = 0
+        self.read_high_score()
 
         # Font settings for invoice output.
         self.text_color = (30, 30, 30)
         self.font = pygame.font.SysFont(None, 48)
 
-        # Preparing the original image.
+        # Prepare invoice images.
         self.prep_score()
+        self.prep_high_score()
+
+    def read_high_score(self):
+        file = open('data/record.json', 'r')
+        self.high_score = int(json.load(file))
+        file.close()
 
     def prep_score(self):
         """Converts the current score to a graphic."""
-        store_str = str(self.stats.score)
-        self.score_image = self.font.render(store_str, True, self.text_color, self.ai_settings.bg_color)
+        rounded_score = int(round(self.stats.score, -1))
+        score_str = "{:,}".format(rounded_score)
+        self.score_image = self.font.render(score_str, True, self.text_color, self.ai_settings.bg_color)
 
         # Output of the account in the right upper part of the screen.
         self.score_rect = self.score_image.get_rect()
         self.score_rect.right = self.screen_rect.right - 20
         self.score_rect.top = 20
 
+    def prep_high_score(self):
+        """Converts the record score to a graphic."""
+        self.high_score = int(round(self.high_score, -1))
+        high_score_str = "{:,}".format(self.high_score)
+        self.high_score_image = self.font.render(high_score_str, True, self.text_color, self.ai_settings.bg_color)
+        # The record is centered on the top side.
+        self.high_score_rect = self.high_score_image.get_rect()
+        self.high_score_rect.centerx = self.screen_rect.centerx
+        self.high_score_rect.top = self.score_rect.top
+
+    def dump_high_record(self):
+        file = open('data/record.json', 'w')
+        json.dump(self.stats.high_score, file)
+        file.close()
+
     def show_score(self):
         """Выводит счет на экран."""
         self.screen.blit(self.score_image, self.score_rect)
+        self.screen.blit(self.high_score_image, self.high_score_rect)

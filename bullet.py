@@ -11,8 +11,9 @@ class Bullet(Sprite):
         self.screen = screen
 
         # Create a bullet at position (0,0) and assign the correct position
-        self.image = pygame.image.load("data/images/Laser_shot.png")
-        self.rect = self.image.get_rect()
+        self.image_bullet = pygame.image.load("data/images/Laser_shot.png")
+        self.image_laser = pygame.image.load('data/images/laser-beam.png')
+        self.rect = self.image_bullet.get_rect()
         self.rect.centerx = starship.rect.centerx
         self.rect.top = starship.rect.top
 
@@ -30,4 +31,8 @@ class Bullet(Sprite):
 
     def draw_bullet(self):
         """Draw bullet on a screen"""
-        self.screen.blit(self.image, self.rect)
+        self.screen.blit(self.image_bullet, self.rect)
+
+    def draw_laser(self):
+        """Draw laser on a screen"""
+        self.screen.blit(self.image_laser, self.rect)
